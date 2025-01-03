@@ -268,6 +268,7 @@ VALUES                      (1         , 1      ),
 
 -- Question 1: Tạo view có chứa danh sách
 -- nhân viên thuộc phòng ban sale
+CREATE OR REPLACE VIEW view_01 AS
 SELECT *
 FROM account
 WHERE department_id =
@@ -277,13 +278,53 @@ WHERE department_id =
 
 -- Question 2: Tạo view có chứa thông tin
 -- các account tham gia vào nhiều group nhất
+CREATE OR REPLACE VIEW view_02 AS
+SELECT account.*
+FROM account
+LEFT JOIN group_account USING (account_id)
+GROUP BY account_id
+HAVING COUNT(group_id) =
+    (SELECT MAX(group_count)
+    FROM
+        (SELECT COUNT(group_id) AS group_count
+        FROM account
+        LEFT JOIN group_account USING (account_id)
+        GROUP BY account_id) AS t);
+
 -- Question 3: Tạo view có chứa câu hỏi
--- có những content quá dài (content quá 300 từ
+-- có những content quá dài (content quá 3 từ
 -- được coi là quá dài) và xóa nó đi
+CREATE OR REPLACE VIEW view_03 AS
+SELECT *
+FROM question
+WHERE CHAR_LENGTH(content) - CHAR_LENGTH(REPLACE(content, " ", "")) + 1 > 3;
+
+DELETE FROM view_03;
+
 -- Question 4: Tạo view có chứa danh sách
 -- các phòng ban có nhiều nhân viên nhất
-
+CREATE OR REPLACE VIEW view_04 AS
+WITH c1 AS (
+    SELECT department.*, COUNT(account_id) AS account_count
+    FROM department
+    LEFT JOIN account USING (department_id)
+    GROUP BY department_id
+)
+SELECT *
+FROM c1
+WHERE account_count =
+    (SELECT MAX(account_count)
+    FROM c1);
 
 -- Question 5: Tạo view có chứa tất cả
 -- các câu hỏi do user họ Nguyễn tạo.
+CREATE OR REPLACE VIEW view_05 AS
+SELECT *
+FROM question
+WHERE creator_id IN
+    (SELECT account_id
+    FROM account
+    WHERE full_name LIKE "Nguyễn%");
+
+
 
