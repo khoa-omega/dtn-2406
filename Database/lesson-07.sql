@@ -63,9 +63,20 @@ DELIMITER ;
 INSERT INTO group_account   (group_id, account_id, joined_date )
 VALUES                      (5       , 1         , "2030-03-05");
 
-
-
-
+-- CASE WHEN
+-- VD:
+WITH RECURSIVE c1 (month) AS (
+    SELECT 1
+    UNION ALL
+    SELECT month + 1 FROM c1 WHERE month < 12
+)
+SELECT month,
+    CASE
+        WHEN month = 2 THEN "28 hoặc 29 ngày"
+        WHEN month IN (4, 6, 9, 11) THEN "30 ngày"
+        ELSE "31 ngày"
+    END AS count
+FROM c1;
 
 
 
